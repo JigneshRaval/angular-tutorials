@@ -1,17 +1,64 @@
 <!doctype html>
 <html>
 	<head>
-        <script src="js/angular.min.js"></script>
+        <script src="js/angular.js"></script>
+		<script src="js/angular-route.min.js"></script>
 	</head>
-	<body ng-app>
-      
-        <div>
-			<label>Name:</label>
-			<input type="text" ng-model="yourName" placeholder="Enter a name here">
-			<hr>
-			<h1>Hello {{yourName}}!</h1>
+	<body ng-app="single-page-app">
+		<div ng-controller="MyController">
+			<ul>
+				<li><a href="#/">Home</a></li>
+				<li><a href="#/about">About Us</a></li>
+			</ul>
+			
+			<div ng-view>
+			</div>
 		</div>
 		
-		<script src="js/test-es5.js"></script>
+		<!-- Highlight Matched word in text -->
+		<div ng-controller="SearchHighlight">
+			<style>
+				.highlightWord { background-color: orange; }
+			</style>
+			
+			<input type="text" ng-model="search.text" />
+			
+			<p ng-bind-html="text | highlight:search.text">{{text}}</p>
+		</div>
+		
+		<script>
+			var app = angular.module('single-page-app', ['ngRoute']);
+			
+			// Angular.js Route example
+			app.config(function($routeProvider){
+				$routeProvider
+				.when('/', {
+					templateUrl : './routes/home.html'
+				})
+				.when('/about', {
+					templateUrl : './routes/about.html'
+				});
+			});
+			
+			app.controller('MyController', MyController);
+			
+			function MyController($scope) {
+				
+			}
+			// Highlight matched string in paragraph
+			app.controller('SearchHighlight', SearchHighlight);
+			
+			function SearchHighlight($scope) {
+			$scope.text = "The first thing you'll notice in this template is the use of expressions (\"{{\" and \"}}\") to return variable values. In AngularJS, expressions allow you to execute some computation in order to return a desired value. Some valid expressions would be:";
+			}
+			
+			app.filter('highlight', function($sce) {
+				return function(text, phrase) {
+					if (phrase) text = text.replace(new RegExp('('+phrase+')', 'gi'), '<span class="highlightWord">$1</span>');
+					return $sce.trustAsHtml(text);
+					
+				}
+			});
+		</script>
 	</body>
 </html>
